@@ -1,0 +1,60 @@
+.opt/
+build/
+
+# Build artifacts
+*.o
+*.obj
+*.a
+
+# Libraries
+*.lib
+*.dll
+*.dylib
+*.so
+
+# Executables
+*.exe
+*.out
+*.elf
+*.bin
+
+# Debug files
+*.dSYM
+*.pdb
+*.dSYM.zip
+*.pdb.zip
+
+# Archives
+*.zip
+*.tar*
+
+# Logs and dumps
+*.log
+*.dump
+*.core
+*.trace
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Disk images
+*.dmg
+*.iso
+*.img
+*.qcow*
+
+# Backup files
+*.bak
+*.old
+*.orig
+
+# IDE and editor files
+*.idea/
+*.vscode/
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+*.project/
