@@ -5,7 +5,7 @@ set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR x86_64)
 
 # Cross compiler
-set(SURGEOS_CROSS_COMPILER_PATH "/home/surge/tools/x86_64-elf-7.5.0-Linux-x86_64/bin/")
+set(SURGEOS_CROSS_COMPILER_PATH ".opt/x86_64-elf-7.5.0-Linux-x86_64/bin/")
 set(SURGEOS_CROSS_COMPILER_PREFIX "x86_64-elf-")
 
 # Set compiler binaries
