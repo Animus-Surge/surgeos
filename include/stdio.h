@@ -6,6 +6,7 @@
 #ifndef SURGEOS_STDIO_H
 #define SURGEOS_STDIO_H
 
+#include <stdarg.h>
 #include <stddef.h>
 
 #define EOF (-1)

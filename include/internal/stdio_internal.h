@@ -6,6 +6,8 @@
 #ifndef SURGEOS_STDIO_INTERNAL_H
 #define SURGEOS_STDIO_INTERNAL_H
 
+#include <stddef.h>
+
 struct _File {
   int fd;
   int flags;
