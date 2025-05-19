@@ -1,13 +1,10 @@
 /**
- * SurgeOS libc stdio.c
- * Standard I/O definitions
+ * SurgeOS libc stdio/printf.c
+ * printf() implementation
  */
 
+#include <internal/stdio_internal.h>
 #include <stdio.h>
-
-#if defined(__surgeos_libk__)
-#include <kernel/tty.h>
-#endif
 
 #include <limits.h>
 #include <stdbool.h>
@@ -20,20 +17,6 @@ static bool print(const char* data, size_t length) {
     if (putchar(bytes[i]) == EOF)
       return false;
   return true;
-}
-
-int puts(const char* str) {
-  return printf("%s\n", str);
-}
-
-int putchar(int ic) {
-#if defined(__surgeos_libk__)
-  char c = (char)ic;
-  term_write(&c, 1);
-#else
-  //TODO: syscall/stdio implementation
-#endif
-  return ic;
 }
 
 static bool print_int(int i) {

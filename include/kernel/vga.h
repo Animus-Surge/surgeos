@@ -9,6 +9,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
+extern void enter_gfx_mode(void);
+
 enum vga_color {
   VGA_COLOR_BLACK = 0,
   VGA_COLOR_BLUE = 1,
@@ -36,7 +38,6 @@ static inline uint16_t vga_entry(unsigned char uc, uint8_t color) {
   return (uint16_t) uc | (uint16_t) color << 8;
 }
 
-void enter_vga_mode(void);
-void vga_draw_line(size_t, size_t, size_t, size_t);
+void vga_enter_gfx_mode(void);
 
 #endif

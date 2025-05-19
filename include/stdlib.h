@@ -7,12 +7,13 @@
 #define SURGEOS_STDLIB_H
 
 #include <sys/cdefs.h>
+#include <stdnoreturn.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-__attribute__((__noreturn__)) void abort(void);
+noreturn void abort(void);
 
 #ifdef __cplusplus
 }
