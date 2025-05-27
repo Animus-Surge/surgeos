@@ -1,12 +1,10 @@
 ; SurgeOS kernel realmode.asm
 ; Handles the real mode to protected mode transition
 
-[BITS 32]
+[bits 32]
 
 extern _protected_mode
-
-GLOBAL _gdt_load
-
+global _gdt_load
 _gdt_load:
     cli
 
