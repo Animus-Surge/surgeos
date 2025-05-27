@@ -6,8 +6,11 @@
 #include <kernel/kernel.h>
 #include <kernel/keyboard.h>
 
+#include <ctype.h>
 #include <stdbool.h>
 #include <stdint.h>
+
+// TODO: support additional layouts other than en_US
 
 // scancode -> ASCII for unshifted keys (index = scancode)
 const char scancode_to_ascii[128] = {
@@ -36,10 +39,6 @@ const char scancode_to_ascii_shift[128] = {
   '-',  '4',  '5',  '6', '+', '1', '2', '3', '0', '.', // 0x4B-0x53 (keypad)
   0,    0,    0,    0,   0,   0,   0,   0,   0          // rest zero-filled
 };
-
-static bool is_letter(char c) {
-  return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
-}
 
 char get_ascii_from_scancode(uint32_t scancode) {
   static bool shift_pressed = false;
@@ -76,7 +75,7 @@ char get_ascii_from_scancode(uint32_t scancode) {
     : scancode_to_ascii[code];
 
   // If it's a letter, apply Caps Lock XOR Shift logic
-  if ((ascii >= 'a' && ascii <= 'z') || (ascii >= 'A' && ascii <= 'Z')) {
+  if (isalpha(ascii)) {
     bool uppercase = shift_pressed ^ caps_lock;
     if (uppercase) {
       if (ascii >= 'a' && ascii <= 'z') {
