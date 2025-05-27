@@ -1,0 +1,3 @@
+[submodule "pdclib"]
+	path = pdclib
+	url = git@github.com:DevSOlar/pdclib.git
