@@ -33,6 +33,7 @@ int puts(const char* str);
 
 int ungetc(int c, FILE* stream);
 
+//Input
 int getchar(void);
 int getc(FILE* stream);
 int fgetc(FILE* stream);
