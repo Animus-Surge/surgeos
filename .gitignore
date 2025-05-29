@@ -58,3 +58,5 @@ build/
 *.sublime-workspace
 *.code-workspace
 *.project/
+
+sysroot/
