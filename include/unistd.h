@@ -47,6 +47,12 @@ void _exit(int);
 ssize_t read(int, void*, size_t);
 ssize_t write(int, const void*, size_t);
 
+pid_t fork(void);
+int execv(const char*, char *const[]);
+int execve(const char*, char *const[], char *const[]);
+int execvp(const char*, char *const[]);
+pid_t getpid(void);
+
 __EXTC_END
 
 #endif /* SURGEOS_UNISTD_H */

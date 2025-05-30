@@ -3,7 +3,6 @@
  * putchar() implementation
  */
 
-#include <internal/stdio_internal.h>
 #include <stdio.h>
 
 #if defined(__surgeos_libk__)
@@ -15,7 +14,7 @@ int putchar(int ic) {
   char c = (char)ic;
   term_write(&c, 1);
 #else
-  //TODO: syscall/stdio implementation
+  putc(ic);
 #endif
   return ic;
 }

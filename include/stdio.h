@@ -29,6 +29,15 @@
 #define _IOLBF 0x0040  // Line buffering
 #define _IONBF 0x0004  // No buffering
 
+// File flags
+#define FILE_READ       (1 << 0)
+#define FILE_WRITE      (1 << 1)
+#define FILE_EOF        (1 << 2)
+#define FILE_ERR        (1 << 3)
+#define FILE_BUF_ALLOC  (1 << 4)
+#define FILE_APPEND     (1 << 5)
+#define FILE_DIRTY      (1 << 6)
+
 typedef struct _File FILE;
 typedef long fpos_t;
 
