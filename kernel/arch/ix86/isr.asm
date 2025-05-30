@@ -41,6 +41,25 @@ isr_keyboard:
     popa
     iret
 
+extern isr_syscall_handler
+global isr_syscall
+isr_syscall:
+    pusha
+    xor eax, eax
+
+    ; Read syscall number from stack
+    mov eax, [esp + 32]  ; Syscall number is at esp + 32
+    push eax             ; Save syscall number for handler
+
+    call isr_syscall_handler ; Call the syscall handler
+
+    add esp, 4          ; Clean up the stack
+    mov al, 0x20
+    out 0x20, al        ; Send EOI to master PIC
+
+    popa
+    iret
+
 global pic_remap
 pic_remap:
     ; Save current state

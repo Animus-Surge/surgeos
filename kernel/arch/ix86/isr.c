@@ -16,3 +16,6 @@ void isr_keyboard_input(uint32_t scancode) {
     printf("%c", ascii);
   }
 }
+
+void isr_syscall_handler(uint32_t syscall) {
+}
