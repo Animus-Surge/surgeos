@@ -1,6 +1,6 @@
 /**
  * SurgeOS libc string/memcpy.c
- * memcpy() implementation
+ * `memcpy()` implementation
  */
 
 #include <string.h>
@@ -14,3 +14,4 @@ void* memcpy(void* __restrict dest, const void* __restrict src, size_t n) {
   }
   return dest;
 }
+

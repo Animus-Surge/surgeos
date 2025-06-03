@@ -1,6 +1,6 @@
 /**
  * SurgeOS libc ctype/isupper.c
- * isupper() implementation
+ * `isupper()` implementation
  */
 
 #include <ctype.h>

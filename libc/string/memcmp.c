@@ -1,6 +1,6 @@
 /**
  * SurgeOS libc string/memcmp.c
- * memcmp() implementation
+ * `memcmp()` implementation
  */
 
 #include <string.h>
@@ -18,3 +18,4 @@ int memcmp(const void* s1, const void* s2, size_t n) {
   }
   return 0;
 }
+

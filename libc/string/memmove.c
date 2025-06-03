@@ -1,6 +1,6 @@
 /**
  * SurgeOS libc string/memmove.c
- * memmove() implementation
+ * `memmove()` implementation
  */
 
 #include <string.h>
@@ -20,3 +20,4 @@ void* memmove(void* dest, const void* src, size_t n) {
   }
   return dest;
 }
+

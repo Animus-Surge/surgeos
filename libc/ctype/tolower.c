@@ -1,6 +1,6 @@
 /**
  * SurgeOS libc ctype/tolower.c
- * tolower() implementation
+ * `tolower()` implementation
  */
 
 #include <ctype.h>
@@ -11,3 +11,4 @@ int tolower(int c)
         return c + ('a' - 'A');
     return c;
 }
+

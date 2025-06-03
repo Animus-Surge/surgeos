@@ -1,6 +1,6 @@
 /**
  * SurgeOS libc string/memset.c
- * memset() implementation
+ * `memset()` implementation
  */
 
 #include <string.h>
@@ -13,3 +13,4 @@ void* memset(void* dest, int c, size_t n) {
   }
   return dest;
 }
+

@@ -1,6 +1,6 @@
 /**
  * SurgeOS libc stdio/putchar.c
- * putchar() implementation
+ * `putchar()` implementation
  */
 
 #include <stdio.h>
@@ -18,3 +18,4 @@ int putchar(int ic) {
 #endif
   return ic;
 }
+

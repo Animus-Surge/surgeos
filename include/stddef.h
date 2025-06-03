@@ -15,9 +15,9 @@ __EXTC
 
 typedef unsigned long size_t;
 typedef long ptrdiff_t;
-typedef unsigned short wchar_t;
+typedef unsigned long wchar_t;
 
 __EXTC_END
 
-#endif /* SURGEOS_STDDEF_H */
+#endif // SURGEOS_STDDEF_H
 

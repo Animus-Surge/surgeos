@@ -1,6 +1,6 @@
 /**
  * SurgeOS libc ctype/toupper.c
- * toupper() implementation
+ * `toupper()` implementation
  */
 
 #include <ctype.h>
@@ -11,3 +11,4 @@ int toupper(int c)
         return c - ('a' - 'A');
     return c;
 }
+

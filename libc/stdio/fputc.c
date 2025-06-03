@@ -7,6 +7,10 @@
 #include <stdio.h>
 #include "internal/stdio_internal.h"
 
+#ifdef __surgeos_libk__
+#include <kernel/tty.h>
+#endif
+
 /**
  * Write a character to a stream. Sets `errno` if unsuccessful.
  * @param c (int/char) The character to write
@@ -14,6 +18,9 @@
  * @return The character if successful, EOF (-1) otherwise
  */
 int fputc(int c, FILE* stream) {
+#ifdef __surgeos_libk__
+  term_putchar(c);
+#else
   if(!stream || !(stream->flags & FILE_WRITE)) {
     errno = EBADF;
     return EOF;
@@ -49,6 +56,7 @@ int fputc(int c, FILE* stream) {
   }
 
   stream->pos++;
+#endif
   return (unsigned char)c;
 }
 

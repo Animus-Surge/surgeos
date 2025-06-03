@@ -34,8 +34,8 @@ extern init_idt
 extern _init
 
 section .text
-global _start
-_start:
+global kernel_init
+kernel_init:
     ; Set up the stack pointer
     mov esp, stack_top
 

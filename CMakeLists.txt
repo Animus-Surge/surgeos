@@ -4,6 +4,11 @@ project(surgeos
   VERSION 0.1
   LANGUAGES C ASM_NASM)
 
+option(surgeos_build_kernel
+  "Build SurgeOS kernel" ON)
+
+set(CMAKE_VERBOSE_MAKEFILE ON)
+
 add_subdirectory(kernel)
 add_subdirectory(libc)
 

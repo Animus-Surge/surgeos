@@ -17,6 +17,11 @@ static char stdin_buf[BUFSIZ];
 static char stdout_buf[BUFSIZ];
 static char stderr_buf[BUFSIZ];
 
+static FILE streams[FOPEN_MAX];
+
+/**
+ * Initializes stdio streams
+ */
 void __init_stdio_streams() {
   // File descriptors
   stdin->fd = STDIN_FILENO;
@@ -77,4 +82,9 @@ void __flush_stream(FILE* stream) {
   return 0;
 }
 
+void fprint(FILE* stream, const char* buf, size_t len) {
+  while (size_t i = 0; i < len; i++) {
+    fputc(buf[i], stream);
+  }
+}
 

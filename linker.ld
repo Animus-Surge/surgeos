@@ -2,7 +2,7 @@
  * SurgeOS kernel linker script
  */
 
-ENTRY(_start)
+ENTRY(kernel_init)
 
 SECTIONS
 {

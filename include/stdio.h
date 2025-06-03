@@ -1,6 +1,6 @@
 /**
  * SurgeOS include/stdio.h
- * stdio.h
+ * Standard Input/Output header
  */
 
 #ifndef SURGEOS_STDIO_H
@@ -45,6 +45,8 @@ extern FILE* stdin;
 extern FILE* stdout;
 extern FILE* stderr;
 
+extern FILE streams[FOPEN_MAX];
+
 // Character I/O
 //Output
 int putchar(int c);
@@ -52,6 +54,8 @@ int putc(int c, FILE* stream);
 int fputc(int c, FILE* stream);
 int fputs(const char* str, FILE* stream);
 int puts(const char* str);
+int putc_unlocked(int c, FILE* stream);
+int putchar_unlocked(int c);
 
 int ungetc(int c, FILE* stream);
 
@@ -61,6 +65,8 @@ int getc(FILE* stream);
 int fgetc(FILE* stream);
 char* fgets(FILE* stream);
 char* gets(FILE* stream);
+int getc_unlocked(FILE* stream);
+int getchar_unlocked(void);
 
 // Formatted I/O
 int printf(const char* __restrict format, ...);
@@ -82,6 +88,9 @@ int fseek(FILE* stream, long offset, int whence);
 long ftell(FILE* stream);
 int fgetpos(FILE* stream, fpos_t* pos);
 int fsetpos(FILE* stream, const fpos_t* pos);
+int ftrylockfile(FILE* stream);
+int flockfile(FILE* stream);
+void funlockfile(FILE* stream);
 
 // Binary I/O
 size_t fread(void* ptr, size_t size, size_t nmemb, FILE* stream);
@@ -92,6 +101,23 @@ void clearerr(FILE* stream);
 int feof(FILE* stream);
 int ferror(FILE* stream);
 void perror(const char* s);
+
+// Buffer management
+void setbuf(FILE* stream, char* buf);
+void setvbuf(FILE* stream, char* buf, int mode, size_t size);
+
+// Temporary files
+char* tmpnam(char* str);
+FILE* tmpfile(void);
+char* tempnam(const char* dir, const char* prefix);
+
+// Other
+int fileno(FILE* stream);
+char* ctermid(char* str);
+char* cuserid(char* str); // Deprecated, use getlogin() instead
+
+// Internal
+int fprint(FILE* stream, const char* buf);
 
 #endif // SURGEOS_STDIO_H
 

@@ -17,6 +17,7 @@ _EXTC
 
 #define SIG_DFL(x)
 #define SIG_IGN(x)
+#define SIG_HOLD(x)
 #define SIG_ERR(x)
 
 #define SIG_ATOMIC_T_SIGNED
