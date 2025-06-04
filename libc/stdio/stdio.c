@@ -3,6 +3,7 @@
  * Standard Input/Output implementation
  */
 
+#include <stddef.h>
 #include <stdio.h>
 #include <unistd.h>
 #include "internal/stdio_internal.h"
@@ -17,7 +18,7 @@ static char stdin_buf[BUFSIZ];
 static char stdout_buf[BUFSIZ];
 static char stderr_buf[BUFSIZ];
 
-static FILE streams[FOPEN_MAX];
+static FILE* streams[FOPEN_MAX];
 
 /**
  * Initializes stdio streams
@@ -40,7 +41,7 @@ void __init_stdio_streams() {
   // Position and sizes
   stdin->buf_size = BUFSIZ;
   stdout->buf_size = BUFSIZ;
-  stderr->buf_siz = BUFSIZ;
+  stderr->buf_size = BUFSIZ;
   stdin->pos = 0;
   stdout->pos = 0;
   stderr->pos = 0;
@@ -63,7 +64,7 @@ void __init_stdio_streams() {
  * @param stream (FILE*) the stream to flush
  * @returns 0 if successful, -1 otherwise
  */
-void __flush_stream(FILE* stream) {
+int __flush_stream(FILE* stream) {
   if(!stream || !(stream->flags & FILE_WRITE) || !(stream->flags & FILE_DIRTY)) {
     return 0;
   }
@@ -82,9 +83,12 @@ void __flush_stream(FILE* stream) {
   return 0;
 }
 
-void fprint(FILE* stream, const char* buf, size_t len) {
-  while (size_t i = 0; i < len; i++) {
-    fputc(buf[i], stream);
+int fprint(FILE* stream, const char* buf, size_t len) {
+  for(size_t i = 0; i < len; i++) {
+    if (putc(buf[i], stream) == EOF) {
+      return EOF;
+    }
   }
+  return len;
 }
 

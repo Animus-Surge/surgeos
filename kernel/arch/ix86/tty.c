@@ -84,6 +84,19 @@ void term_putchar(char c) { //TODO: escape sequences
     }
     cursor_col = 0;
     return;
+  } else if (c == '\r') {
+    cursor_col = 0;
+    return;
+  } else if (c == 8) { // Backspace
+    if (cursor_col > 0) {
+      cursor_col--;
+    }
+    term_putchar_pos(' ', cursor_col, cursor_row); // Clear the character
+    return;
+  }
+
+  else if (c < 32 || c > 126) { // Ignore non-printable characters
+    return;
   }
 
   term_putchar_pos(c, cursor_col, cursor_row);

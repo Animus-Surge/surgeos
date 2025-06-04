@@ -35,8 +35,6 @@ void init_idt() {
   // Setting specific interrupt handlers
   set_idt_entry(0x21, (uint32_t)isr_keyboard, 0x08, 0x8E); // IRQ1 (keyboard)
 
-  set_idt_entry(0x80, (uint32_t)isr_syscall, 0x08, 0x8E); // Syscall handler
-
   isr_load(&idt_ptr);
   pic_remap(); // Remap the PIC
   asm volatile("sti"); // Enable interrupts

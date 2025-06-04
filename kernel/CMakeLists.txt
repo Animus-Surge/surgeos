@@ -9,18 +9,15 @@ set(SURGEOS_KERNEL_SOURCES
   arch/ix86/isr.asm
   arch/ix86/crti.asm
   arch/ix86/crtn.asm
-  arch/ix86/paging.asm
   arch/ix86/gdt.c
   arch/ix86/idt.c
   arch/ix86/isr.c
-  arch/ix86/paging.c
   arch/ix86/tty.c
   
   driver/keyboard.c
   driver/vga.c
 
   kernel.c
-  syscall.c
 )
 
 add_library(surgeos_kernel OBJECT

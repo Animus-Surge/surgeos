@@ -15,7 +15,7 @@
 // scancode -> ASCII for unshifted keys (index = scancode)
 const char scancode_to_ascii[128] = {
   0,    27,  '1', '2', '3', '4', '5', '6', '7', '8',   // 0x00-0x09
-  '9',  '0',  '-', '=', 0,   '\t','q','w','e','r',     // 0x0A-0x13
+  '9',  '0',  '-', '=', 8,   '\t','q','w','e','r',     // 0x0A-0x13
   't',  'y',  'u', 'i', 'o', 'p', '[', ']', '\n',      // 0x14-0x1C
   0,    'a',  's', 'd', 'f', 'g', 'h', 'j', 'k',       // 0x1D-0x25
   'l',  ';',  '\'', '`', 0,   '\\','z','x','c','v',     // 0x26-0x2F
@@ -29,7 +29,7 @@ const char scancode_to_ascii[128] = {
 // scancode -> ASCII for shifted keys (index = scancode)
 const char scancode_to_ascii_shift[128] = {
   0,    27,  '!', '@', '#', '$', '%', '^', '&', '*',   // 0x00-0x09
-  '(',  ')',  '_', '+', 0,   '\t','Q','W','E','R',     // 0x0A-0x13
+  '(',  ')',  '_', '+', 8,   '\t','Q','W','E','R',     // 0x0A-0x13
   'T',  'Y',  'U', 'I', 'O', 'P', '{', '}', '\n',      // 0x14-0x1C
   0,    'A',  'S', 'D', 'F', 'G', 'H', 'J', 'K',       // 0x1D-0x25
   'L',  ':',  '"', '~', 0,   '|', 'Z', 'X', 'C', 'V',   // 0x26-0x2F

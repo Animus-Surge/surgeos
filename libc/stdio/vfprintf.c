@@ -56,7 +56,7 @@ int _handle_escapes(FILE* stream, char* buf) {
     buf++;
     switch (*buf) {
       case 'n':
-        fputc(stream, '\n');
+        fputc('\n', stream);
         return 1;
       default:
         return 0;
@@ -105,10 +105,10 @@ int vfprintf(FILE* stream, const char* format, va_list ap) {
       continue;
     }
 
-    const char* format_start = b++;
+    const char* format_start = p++;
 
-    if(*b == 'c') { // Character
-      b++;
+    if(*p == 'c') { // Character
+      p++;
       char c = (char) va_arg(ap, int);
       if(!maxrem) {
         errno = EOVERFLOW;

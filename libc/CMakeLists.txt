@@ -17,19 +17,8 @@ set(SURGEOS_LIBC_SOURCES
   ctype/toupper.c
   ctype/tolower.c
 
-  # errno.h
-  errno/errno.c
-
   # stdio.h
-  stdio/fflush.c
-  stdio/fprintf.c
-  stdio/fputc.c
   stdio/printf.c
-  stdio/putc.c
-  stdio/putchar.c
-  stdio/puts.c
-  stdio/stdio.c
-  stdio/vfprintf.c
 
   # string.h
   string/memcmp.c
@@ -40,12 +29,6 @@ set(SURGEOS_LIBC_SOURCES
 
   # stdlib.h
   stdlib/abort.c
-  stdlib/exit.c
-
-  # unistd.h
-  unistd/_exit.c
-  unistd/read.c
-  unistd/write.c
 )
 
 add_library(surgeos_libc OBJECT

@@ -13,6 +13,7 @@ __EXTC
 
 # ifndef NULL
 #  define NULL ((void*)0)
+# endif
 
 # ifndef SIZE_T_DEFINED
 #  define SIZE_T_DEFINED
