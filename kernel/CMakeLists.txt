@@ -4,8 +4,8 @@
 enable_language(ASM_NASM)
 
 set(SURGEOS_KERNEL_SOURCES
-  arch/ix86/kernel.asm
-  arch/ix86/realmode.asm
+  arch/ix86/boot.asm
+  arch/ix86/gdt.asm
   arch/ix86/isr.asm
   arch/ix86/crti.asm
   arch/ix86/crtn.asm

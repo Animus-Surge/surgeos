@@ -7,6 +7,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -17,9 +18,6 @@ int print(const char* str, size_t len) {
 
   // Write to the terminal
   for (size_t i = 0; i < len; i++) {
-    if (str[i] == '\n') {
-      term_putchar('\r'); // Carriage return
-    }
     term_putchar(str[i]);
   }
 
@@ -27,9 +25,6 @@ int print(const char* str, size_t len) {
 }
 
 int putc(int c) {
-  if (c == '\n') {
-    term_putchar('\r'); // Carriage return for new line
-  }
   term_putchar(c);
   return c; // Return the character written
 }
@@ -138,6 +133,48 @@ int printf(const char* format, ...) {
       }
       if(!print(str, len)) return -1;
       written += len;
+    } else if (*p == 'd' || *p == 'i') { // Decimal integer
+      p++;
+      int value = va_arg(ap, int);
+      char buf[12]; // Enough for 32-bit signed int
+      itoa(value, buf, 10);
+      size_t len = strlen(buf);
+      if(maxrem < len) {
+        return -1;
+      }
+      if (!print(buf, len)) return -1;
+      written += len;
+    } else if (*p == 'u') { // Unsigned integer
+      p++;
+      unsigned int value = va_arg(ap, unsigned int);
+      char buf[12]; // Enough for 32-bit unsigned int
+      itoa(value, buf, 10);
+      size_t len = strlen(buf);
+      if(maxrem < len) {
+        return -1;
+      }
+      if (!print(buf, len)) return -1;
+      written += len;
+    } else if (*p == 'x' || *p == 'X') { // Hexadecimal
+      bool uppercase = (*p == 'X');
+      p++;
+      unsigned int value = va_arg(ap, unsigned int);
+      char buf[9]; // Enough for 32-bit hex
+      fmt_hex(buf, value, uppercase);
+      size_t len = strlen(buf);
+      if(maxrem < len) {
+        return -1;
+      }
+      if (!print(buf, len)) return -1;
+      written += len;
+    } else if (*p == 'l') { // Long integer (not fully implemented)
+      p++;
+    } else if (*p == 'f') { // Floating point (not implemented)
+      p++;
+    } else if (*p == 'n') { // Storage pointer (not implemented)
+      p++;
+    } else if (*p == 'p') { // Pointer (not implemented)
+      p++;
     }
 
     //TODO: decimal (i, d, u), hex (x, X), octal (o, O), floating point (f, F), 

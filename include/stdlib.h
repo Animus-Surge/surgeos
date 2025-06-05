@@ -15,6 +15,8 @@ __EXTC
 
 __attribute__((__noreturn__)) void abort(void);
 
+char* itoa(int, char*, int);
+
 __EXTC_END
 
 #endif // SURGEOS_STDLIB_H

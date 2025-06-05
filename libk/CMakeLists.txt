@@ -1,7 +1,7 @@
-# SurgeOS Libc.cmake
-# LibC cmake module; builds the standard C library for SurgeOS
+# SurgeOS libk CMakeLists.txt
+# Libk; kernel c library
 
-set(SURGEOS_LIBC_SOURCES
+set(SURGEOS_LIBK_SOURCES
   # ctype.h
   ctype/isalnum.c
   ctype/isalpha.c
@@ -29,16 +29,17 @@ set(SURGEOS_LIBC_SOURCES
 
   # stdlib.h
   stdlib/abort.c
+  stdlib/itoa.c
 )
 
-add_library(surgeos_libc OBJECT
-  ${SURGEOS_LIBC_SOURCES}
+add_library(surgeos_libk OBJECT
+  ${SURGEOS_LIBK_SOURCES}
 )
 
 if (surgeos_build_kernel)
-  target_compile_options(surgeos_libc PRIVATE -D__surgeos_libk__)
+  target_compile_options(surgeos_libk PRIVATE -D__surgeos_libk__)
 endif()
 
-target_include_directories(surgeos_libc PUBLIC 
+target_include_directories(surgeos_libk PUBLIC 
   ${CMAKE_SOURCE_DIR}/include
 )

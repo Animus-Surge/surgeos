@@ -9,6 +9,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+// TODO: move to <kernel/driver>
+
 //TODO: support additional locales
 typedef enum {
     SC_ESC        = 0x01,

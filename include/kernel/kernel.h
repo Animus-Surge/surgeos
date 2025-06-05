@@ -47,6 +47,9 @@ extern void isr_default(void);
 void init_gdt(void);
 void init_idt(void);
 
+// Fallback drivers
+// TODO: implement fallback drivers
+
 __EXTC_END
 
 #endif // SURGEOS_KERNEL_KERNEL_H

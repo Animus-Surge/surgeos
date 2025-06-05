@@ -1,0 +1,8 @@
+# SurgeOS grub menu.lst
+
+default 0
+timeout 5
+title SurgeOS Kernel
+    root (hd0, 0)
+    kernel /boot/surgeos.elf
+
