@@ -16,12 +16,12 @@ add_subdirectory(kernel)
 add_subdirectory(libk)
 
 # ELF executable
-add_executable(surgeos.elf
+add_executable(surgeos.bin
   $<TARGET_OBJECTS:surgeos_kernel>
   $<TARGET_OBJECTS:surgeos_libk>
 )
-target_link_options(surgeos.elf PRIVATE
-  -T ${CMAKE_SOURCE_DIR}/linker.ld
+target_link_options(surgeos.bin PRIVATE
+  -T ${CMAKE_SOURCE_DIR}/linker_kernel.ld
 )
 
 # Grub setup
@@ -32,21 +32,21 @@ set(SURGEOS_IMAGE_SIZE 100) # MB
 
 set(SURGEOS_KERNEL_TARGET_PATH $<TARGET_FILE:surgeos.elf>)
 
-add_custom_target(
-  create_os_image ALL
-  COMMAND ${CMAKE_COMMAND} -E make_directory ${SURGEOS_IMAGES_DIR}
-  COMMAND ${CMAKE_SOURCE_DIR}/create_image.sh
-    ${SURGEOS_IMAGE_PATH}
-    ${SURGEOS_IMAGE_SIZE}
-    ${SURGEOS_KERNEL_TARGET_PATH}
-    ${SURGEOS_GRUB_MENU_LST}
-  DEPENDS
-    ${SURGEOS_KERNEL_TARGET_PATH}
-    ${SURGEOS_GRUB_MENU_LST}
-    ${CMAKE_SOURCE_DIR}/create_image.sh
-  COMMENT "Creating bootable OS image: ${SURGEOS_IMAGE_PATH}"
-)
-add_dependencies(create_os_image surgeos_kernel)
+# add_custom_target(
+#   create_os_image ALL
+#   COMMAND ${CMAKE_COMMAND} -E make_directory ${SURGEOS_IMAGES_DIR}
+#   COMMAND ${CMAKE_SOURCE_DIR}/create_image.sh
+#     ${SURGEOS_IMAGE_PATH}
+#     ${SURGEOS_IMAGE_SIZE}
+#     ${SURGEOS_KERNEL_TARGET_PATH}
+#     ${SURGEOS_GRUB_MENU_LST}
+#   DEPENDS
+#     ${SURGEOS_KERNEL_TARGET_PATH}
+#     ${SURGEOS_GRUB_MENU_LST}
+#     ${CMAKE_SOURCE_DIR}/create_image.sh
+#   COMMENT "Creating bootable OS image: ${SURGEOS_IMAGE_PATH}"
+# )
+# add_dependencies(create_os_image surgeos_kernel)
 
 
 
