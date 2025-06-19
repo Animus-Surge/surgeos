@@ -6,23 +6,14 @@
 #ifndef SURGEOS_VGA_H
 #define SURGEOS_VGA_H
 
+#include <kernel/multiboot.h>
+
 #include <stdint.h>
 #include <stddef.h>
 
-#define VGA_TEXT_MODE_ADDRESS 0xb8000
-#define VGA_RASTER_MODE_ADDRESS 0xa0000
+#define RGB(r, g, b) (((r)) | ((g) << 8) | (b << 16)) // RGB macro for color conversion
 
-#define VGA_MODE_UNKNOWN 0
-#define VGA_MODE_RASTER 1
-#define VGA_MODE_TEXT 2
-
-#define VGA_FLAG_USE_DAC 0x1
-
-typedef struct {
-  uint8_t red;
-  uint8_t green;
-  uint8_t blue;
-} rgbcolor_t;
+#define FB_VIRT_ADDR 0xE0000000
 
 enum vga_color {
   // 16 Color Mode
@@ -47,17 +38,49 @@ enum vga_color {
   // TODO: add friendly names
 };
 
+enum vga_type {
+  VGA_TYPE_INDEXED = 0, // Indexed color mode
+  VGA_TYPE_RGB = 1,     // RGB color mode
+  VGA_TYPE_EFI = 2      // EFI framebuffer
+};
+
+typedef struct {
+  void* address; // Framebuffer address
+  uint32_t width, height; // Framebuffer dimensions
+  uint32_t pitch; // Number of bytes per row
+  uint8_t bpp; // Bits per pixel
+  enum vga_type type; // Framebuffer type
+
+  // RGB color mode specific
+  uint8_t red_mask, green_mask, blue_mask; // Masks for RGB components
+  uint8_t red_pos, green_pos, blue_pos; // Bit positions for RGB components
+
+  // Indexed color mode specific
+  uint32_t palette_size;
+  struct mb_framebuffer_color* palette; // Pointer to color palette
+} framebuffer_t;
+  
+
 // Common functions
-int vga_init(uint8_t);
+void init_fallback_vga(void);
+int vga_init(struct mb_tag_framebuffer*);
 void vga_clear(void);
+
+void vga_drawpx(size_t, size_t, uint32_t);
+
+// Text drawing functions
+void vga_drawc(char, size_t, size_t, uint32_t);
+void vga_draws(const char*, size_t, size_t, uint32_t);
 
 // Text mode functions
 static inline uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg) {
   return fg | bg << 4;
 }
-
 static inline uint16_t vga_entry(unsigned char uc, uint8_t color) {
   return (uint16_t) uc | (uint16_t) color << 8;
 }
+
+// Direct framebuffer modification
+void vga_virt_fb_addr(void);
 
 #endif // SURGEOS_VGA_H

@@ -16,4 +16,7 @@ extern void isr_default(void);
 extern void isr_keyboard(void); // 0x21
 void isr_keyboard_input(uint32_t);
 
+extern void isr_page_fault(void); // 0x0E
+void isr_page_fault_handler(uint32_t, uint32_t);
+
 #endif // SURGEOS_KERNEL_ISR_H

@@ -1,3 +1,6 @@
+bits 32
+section .text
+
 global isr_load
 isr_load:
     mov eax, [esp+4] ; Load the address of the IDT
@@ -38,6 +41,26 @@ isr_keyboard:
     mov al, 0x20
     out 0x20, al         ; Send EOI to master PIC
     
+    popa
+    iret
+
+extern isr_page_fault_handler
+global isr_page_fault
+isr_page_fault:
+    pusha
+    mov eax, [esp + 32] ; Get the error code
+    mov ebx, [esp + 36] ; Get the faulting address
+
+    push eax            ; Save error code
+    push ebx            ; Save faulting address
+
+    call isr_page_fault_handler ; Call the page fault handler
+
+    add esp, 8          ; Clean up the stack
+
+    mov al, 0x20
+    out 0x20, al        ; Send EOI to master PIC
+
     popa
     iret
 

@@ -10,3 +10,6 @@ Because why the hell not
 
 - [ ] GRUB bootloader
 - [ ] Paging
+- [ ] REPL
+- [ ] Virtual memory (also part of paging)
+- [ ] Userland

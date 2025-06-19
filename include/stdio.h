@@ -13,6 +13,10 @@
 
 // Formatted I/O
 int printf(const char* __restrict format, ...);
+int sprintf(char* __restrict str, const char* __restrict format, ...);
+int snprintf(char* __restrict str, size_t size, const char* __restrict format, ...);
+int vprintf(const char* __restrict format, va_list ap);
+int vsnprintf(char* __restrict str, size_t size, const char* __restrict format, va_list ap);
 
 #endif // SURGEOS_STDIO_H
 

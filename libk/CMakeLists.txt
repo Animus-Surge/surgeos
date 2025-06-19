@@ -19,6 +19,7 @@ set(SURGEOS_LIBK_SOURCES
 
   # stdio.h
   stdio/printf.c
+  stdio/vsnprintf.c
 
   # string.h
   string/memcmp.c
@@ -30,6 +31,10 @@ set(SURGEOS_LIBK_SOURCES
   # stdlib.h
   stdlib/abort.c
   stdlib/itoa.c
+  stdlib/panic.c
+
+  # misc
+  formatting.c
 )
 
 add_library(surgeos_libk OBJECT

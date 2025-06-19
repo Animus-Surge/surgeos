@@ -13,7 +13,10 @@ __EXTC
 
 #define NULL ((void*)0)
 
-__attribute__((__noreturn__)) void abort(void);
+__surgeos_noreturn void abort(void);
+__surgeos_noreturn void panic(const char* msg);
+__surgeos_noreturn void panicf(const char* fmt, ...);
+
 
 char* itoa(int, char*, int);
 

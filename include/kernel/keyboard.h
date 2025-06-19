@@ -9,7 +9,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-// TODO: move to <kernel/driver>
+// TODO: move to <drivers>
 
 //TODO: support additional locales
 typedef enum {
@@ -70,12 +70,21 @@ typedef enum {
     SC_KP_ASTERISK= 0x37,
     SC_LALT       = 0x38,
     SC_SPACE      = 0x39,
-    SC_CAPSLOCK   = 0x3A
+    SC_CAPSLOCK   = 0x3A,
 } Scancode;
+
+typedef enum {
+} ExtendedScancode;
 
 extern char buffer[256];
 extern bool keyboard_enabled;
 
+// Pressed key states
+bool is_key_pressed(uint32_t scancode);
+void set_key_pressed(uint32_t scancode, bool pressed);
+
+// Scancode to ASCII conversion
 char get_ascii_from_scancode(uint32_t scancode);
+uint32_t get_scancode_from_ascii(char ascii);
 
 #endif // SURGEOS_KERNEL_KEYBOARD_H

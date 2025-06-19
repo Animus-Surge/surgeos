@@ -34,6 +34,7 @@ void init_idt() {
 
   // Setting specific interrupt handlers
   set_idt_entry(0x21, (uint32_t)isr_keyboard, 0x08, 0x8E); // IRQ1 (keyboard)
+  set_idt_entry(0x0E, (uint32_t)isr_page_fault, 0x08, 0x8E); // Page fault handler
 
   isr_load(&idt_ptr);
   pic_remap(); // Remap the PIC
