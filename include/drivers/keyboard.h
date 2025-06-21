@@ -7,9 +7,8 @@
 #define SURGEOS_KERNEL_KEYBOARD_H
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
-
-// TODO: move to <drivers>
 
 //TODO: support additional locales
 typedef enum {
@@ -74,17 +73,41 @@ typedef enum {
 } Scancode;
 
 typedef enum {
-} ExtendedScancode;
+  LC_EN_US,    // English (US)
+  LC_EN_GB,    // English (UK)
+               // TODO: add more
+} locale_t;
 
-extern char buffer[256];
-extern bool keyboard_enabled;
+typedef struct {
+  // Keyboard state
+  bool initialized;
+  bool shift_pressed; // Shift key state
+  bool ctrl_pressed;  // Control key state
+  bool alt_pressed;   // Alt key state
+  bool capslock_enabled; // Caps Lock state
+  bool numlock_enabled; // Num Lock state
+  bool scrolllock_enabled; // Scroll Lock state
+  locale_t locale; // Current keyboard locale
 
-// Pressed key states
-bool is_key_pressed(uint32_t scancode);
-void set_key_pressed(uint32_t scancode, bool pressed);
+  // Input buffer
+  char buffer[256];
+  size_t buffer_write_index;
+  size_t buffer_read_index;
+  size_t buffer_length;
 
-// Scancode to ASCII conversion
-char get_ascii_from_scancode(uint32_t scancode);
-uint32_t get_scancode_from_ascii(char ascii);
+  uint8_t key_state[16]; // 8*16 = 128 keys (0x00-0x7F)
+  uint8_t key_state_ext[16]; // Extended keys (0x80-0xFF)
+
+} keyboard_t;
+
+// Helper functions
+char sc_to_ascii(uint32_t);
+char ascii_to_sc(char);
+
+// Keyboard driver functions
+void keyboard_init(void);
+
+char keyboard_getchar(void);
+void keyboard_addchar(char c);
 
 #endif // SURGEOS_KERNEL_KEYBOARD_H

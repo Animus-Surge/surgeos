@@ -3,7 +3,8 @@
  * Serial driver implementation
  */
 
-#include <kernel/driver/serial.h>
+#include <drivers/serial.h>
+
 #include <kernel/portio.h>
 
 #include <stdarg.h>

@@ -6,7 +6,7 @@
 #include <kernel/memory.h>
 #include <kernel/multiboot.h>
 
-#include <kernel/driver/serial.h>
+#include <drivers/serial.h>
 
 #include <stdbool.h>
 #include <stddef.h>

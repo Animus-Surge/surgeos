@@ -14,12 +14,14 @@ set(SURGEOS_KERNEL_SOURCES
   arch/ix86/idt.c
   arch/ix86/isr.c
   
+  driver/framebuffer.c
   driver/keyboard.c
   driver/memory.c
   driver/serial.c
-  driver/vga.c
+  driver/tty.c
 
   kernel.c
+  kernel_init.c
 )
 
 add_library(surgeos_kernel OBJECT

@@ -82,5 +82,10 @@ fullstart:
     call kernel_init
 
     ; TODO: CRT initialization
-    ; TODO: kernel_main
+    call kernel_main
+
+.halt:
+    ; Halt the CPU
+    cli
+    hlt
 

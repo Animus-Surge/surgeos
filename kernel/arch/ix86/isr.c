@@ -5,9 +5,9 @@
 
 #include <kernel/kernel.h>
 #include <kernel/isr.h>
-#include <kernel/keyboard.h>
 
-#include <kernel/driver/serial.h>
+#include <drivers/keyboard.h>
+#include <drivers/serial.h>
 
 #include <stdio.h>
 #include <stdint.h>
@@ -16,9 +16,13 @@
 #include <stdlib.h>
 
 void isr_keyboard_input(uint32_t scancode) {
-  char ascii = get_ascii_from_scancode(scancode);
+  char ascii = sc_to_ascii(scancode);
+
+  serial_printf("ISR: Keyboard: scancode 0x%x, ASCII 0x%x\n", scancode, ascii);
+
   if (ascii) {
-    // TODO: get graphical text mode working with keyboard input
+    serial_printf("ISR: Keyboard: added character\n");
+    keyboard_addchar(ascii);
   }
 }
 
@@ -40,4 +44,9 @@ void isr_page_fault_handler(uint32_t error_code, uint32_t faulting_address) {
   serial_printf("ISR: - Instruction: %d\n", instruction);
 
   panic("Page fault occurred. System halted.");
+}
+
+void isr_double_fault_handler(uint32_t error_code, uint32_t faulting_address) {
+  // TODO: implement logic
+  panic("Double fault occurred. System halted.");
 }

@@ -8,45 +8,16 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <kernel/vga.h>
 #include <kernel/memory.h>
-#include <kernel/portio.h>
-#include <kernel/driver/serial.h>
+
+#include <drivers/framebuffer.h>
+#include <drivers/serial.h>
 
 #include <_font.h>
 
+#define SCALE_SIZE 1
+
 static framebuffer_t fb = {0};
-
-static size_t text_mode_col = 0, text_mode_row = 0;
-
-/**
- * @brief Initialize the fallback VGA text mode
- *
- * Initializes the VGA text buffer to a default state. Uses 80 x 25 text mode
- * as fallback.
- */
-void init_fallback_vga(void) {
-  // Initialize the VGA text buffer
-  size_t width = 80;
-  size_t height = 25;
-
-  serial_writes("VGA: Fallback to text mode\n");
-
-  fb.address = (void*)0xB8000; // VGA text buffer address
-  fb.width = width;
-  fb.height = height;
-  fb.pitch = width * 2; // Each character is 2 bytes (char + attribute)
-  fb.bpp = 16; // 16 bits per pixel (text mode)
-  fb.type = VGA_TYPE_EFI; // Text mode is EFI mode
-
-  for (size_t x = 0; x < width; x++) {
-    for (size_t y = 0; y < height; y++) {
-      size_t index = (y * width + x) * 2;
-      ((char*)fb.address)[index] = ' '; // Clear character
-      ((char*)fb.address)[index + 1] = 0x07; // Default attribute (light gray on black)
-    }
-  }
-}
 
 /**
  * @brief Initialize VGA graphics mode given framebuffer information.
@@ -58,12 +29,10 @@ void init_fallback_vga(void) {
  *
  * @return int Returns 0 on success, or -1 if the framebuffer is invalid.
  */
-int vga_init(struct mb_tag_framebuffer* mb_fb) {
+int framebuffer_init(struct mb_tag_framebuffer* mb_fb) {
   if (!mb_fb) {
-    // Fallback to text mode
-    init_fallback_vga();
     serial_writes("VGA: No framebuffer found, falling back to text mode\n");
-    return 0;
+    return -1;
   }
 
   serial_writes("VGA: Initializing graphics mode\n");
@@ -79,7 +48,6 @@ int vga_init(struct mb_tag_framebuffer* mb_fb) {
   serial_printf("VGA: Framebuffer dimensions: %dx%d\n", mb_fb->fb_width, mb_fb->fb_height);
   serial_printf("VGA: Framebuffer pitch: %d bytes\n", mb_fb->fb_pitch);
   serial_printf("VGA: Framebuffer bpp: %d\n", mb_fb->fb_bpp);
-
 
   // Initialize the framebuffer
   
@@ -119,36 +87,44 @@ int vga_init(struct mb_tag_framebuffer* mb_fb) {
       // EFI mode does not require additional setup
       break;
     default:
-      init_fallback_vga(); // Invalid type, fallback to text mode
-      return 0;
+      return -1;
   }
-
-  // Clear framebuffer
-  // Draw splash screen
 
   return 0;
 }
 
-void vga_drawpx(size_t x, size_t y, uint32_t color) {
-  if (x >= fb.width || y >= fb.height || fb.type == VGA_TYPE_EFI) {
-    return; // Out of bounds, or EFI mode
+void framebuffer_drawpx(size_t x, size_t y, uint32_t color) {
+  if (fb.type == VGA_TYPE_EFI) return;
+
+  size_t scaled_x = x * SCALE_SIZE;
+  size_t scaled_y = y * SCALE_SIZE;
+
+  if (scaled_x + 1 >= fb.width || scaled_y + 1 >= fb.height) {
+    return; // Out of bounds
   }
 
-  uint8_t* addr = (uint8_t*)fb.address + y * fb.pitch + x * (fb.bpp / 8);
+  // Draw a 2x2 block
+  for (size_t dy = 0; dy < SCALE_SIZE; dy++) {
+    for (size_t dx = 0; dx < SCALE_SIZE; dx++) {
+      uint8_t* addr = (uint8_t*)fb.address +
+                      (scaled_y + dy) * fb.pitch +
+                      (scaled_x + dx) * (fb.bpp / 8);
 
-  switch(fb.type) {
-    case VGA_TYPE_RGB:
-      addr[0] = (uint8_t)((color >> fb.red_pos) & 0xFF);
-      addr[1] = (uint8_t)((color >> fb.green_pos) & 0xFF);
-      addr[2] = (uint8_t)((color >> fb.blue_pos) & 0xFF);
-      break;
+      switch (fb.type) {
+        case VGA_TYPE_RGB:
+          addr[0] = (uint8_t)((color >> fb.red_pos) & 0xFF);
+          addr[1] = (uint8_t)((color >> fb.green_pos) & 0xFF);
+          addr[2] = (uint8_t)((color >> fb.blue_pos) & 0xFF);
+          break;
 
-    case VGA_TYPE_INDEXED:
-      addr[0] = (uint8_t)color;
-      break;
+        case VGA_TYPE_INDEXED:
+          addr[0] = (uint8_t)color;
+          break;
 
-    default:
-      return; // Unsupported type, do nothing
+        default:
+          return;
+      }
+    }
   }
 }
 
@@ -158,7 +134,7 @@ void vga_drawpx(size_t x, size_t y, uint32_t color) {
  * This function clears the entire framebuffer by filling it with spaces
  * and setting the default attribute (light gray on black).
  */
-void vga_clear(void) {
+void framebuffer_clear(void) {
   uint8_t* address = (uint8_t*)fb.address;
   size_t bpp = fb.bpp / 8; // Bytes per pixel
 
@@ -187,7 +163,7 @@ void vga_clear(void) {
   }
 }
 
-void vga_drawc(char c, size_t x, size_t y, uint32_t color) {
+void framebuffer_drawc(char c, size_t x, size_t y, uint32_t fg, uint32_t bg) {
   // TODO: support raster modes
   
   if (x >= fb.width || y >= fb.height) {
@@ -202,11 +178,16 @@ void vga_drawc(char c, size_t x, size_t y, uint32_t color) {
       uint8_t* character = (uint8_t*)&font_data[(unsigned char)c];
       for (size_t row = 0; row < 8; row++) {
         for (size_t col = 0; col < 8; col++) {
+          size_t px_x = x + col;
+          size_t px_y = y + row;
           if (character[row] & (1 << (7 - col))) { // Check if pixel is set
-            size_t px_x = x + col;
-            size_t px_y = y + row;
             if (px_x < fb.width && px_y < fb.height) {
-              vga_drawpx(px_x, px_y, color);
+              framebuffer_drawpx(px_x, px_y, fg);
+            }
+          } else {
+            // Draw background pixel
+            if (px_x < fb.width && px_y < fb.height) {
+              framebuffer_drawpx(px_x, px_y, bg);
             }
           }
         }
@@ -215,23 +196,30 @@ void vga_drawc(char c, size_t x, size_t y, uint32_t color) {
     case VGA_TYPE_EFI: // Text mode
       size_t index = (y * fb.width + x) * 2;
       ((char*)fb.address)[index] = c; // Set character
-      ((char*)fb.address)[index + 1] = (uint8_t)color; // Set attribute
+      ((char*)fb.address)[index + 1] = (uint8_t)fg; // Set attribute
       break;
   }
 }
 
-void vga_draws(const char* str, size_t x, size_t y, uint32_t color) {
+void framebuffer_draws(const char* str, size_t x, size_t y, uint32_t fg, uint32_t bg) {
   if (!str || x >= fb.width || y >= fb.height) {
     return; // Invalid string or out of bounds
   }
 
   size_t len = strlen(str);
   for (size_t i = 0; i < len; i++) {
-    vga_drawc(str[i], x + (i * 8), y, color);
+    framebuffer_drawc(str[i], x + (i * 8), y, fg, bg);
   }
 }
 
-void vga_virt_fb_addr(void) {
+/**
+ * @brief Map the framebuffer to virtual memory.
+ *
+ * This function maps the physical framebuffer address to a virtual address
+ * for direct access in the kernel. It uses a predefined virtual address
+ * and maps the physical framebuffer address to it.
+ */
+void framebuffer_virt_fb_addr(void) {
   serial_printf("VGA: Physical framebuffer address: 0x%X\n", (uintptr_t)fb.address);
 
   uintptr_t fb_phys = (uintptr_t)fb.address;
@@ -250,3 +238,27 @@ void vga_virt_fb_addr(void) {
 
   fb.address = (void*)(fb_virt + (fb_phys & 0xFFF)); // Adjust virtual address to match physical offset
 }
+
+/**
+ * @brief Get the width of the framebuffer
+ * 
+ * Is affected by scaling size
+ *
+ * @return The width of the frameebuffer
+ */
+uint32_t framebuffer_get_width(void) {
+  return fb.width / SCALE_SIZE;
+}
+
+/**
+ * @brief Get the height of the framebuffer
+ *
+ * Is affected by scaling size
+ *
+ * @return The height of the framebuffer
+ */
+uint32_t framebuffer_get_height(void) {
+  return fb.height / SCALE_SIZE;
+}
+
+

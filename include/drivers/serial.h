@@ -3,8 +3,8 @@
  * Serial port driver
  */
 
-#ifndef SURGEOS_SERIAL_H
-#define SURGEOS_SERIAL_H
+#ifndef SURGEOS_DRIVER_SERIAL_H
+#define SURGEOS_DRIVER_SERIAL_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -24,4 +24,4 @@ void serial_printf(const char* format, ...);
 
 // Reading functions
 
-#endif // SURGEOS_SERIAL_H
+#endif // SURGEOS_DRIVER_SERIAL_H

@@ -100,6 +100,11 @@ pic_remap:
     mov al, bh
     out 0xA1, al         ; Restore slave PIC mask
 
+    ; Unmask IRQ1
+    in al, 0x21
+    and al, 0xFD
+    out 0x21, al
+
     ret
 
 

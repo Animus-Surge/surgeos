@@ -4,15 +4,11 @@
  */
 
 #include <kernel/kernel.h>
-#include <kernel/keyboard.h>
+#include <drivers/keyboard.h>
 
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdint.h>
-
-// TODO: support additional layouts other than en_US
-
-uint8_t key_bitmap[16] = {0}; // Bitmap to track pressed keys
 
 // scancode -> ASCII for unshifted keys (index = scancode)
 const char scancode_to_ascii[128] = {
@@ -42,101 +38,61 @@ const char scancode_to_ascii_shift[128] = {
   0,    0,    0,    0,   0,   0,   0,   0,   0          // rest zero-filled
 };
 
-/**
- * @brief Returns if the key is currently pressed
- *
- * @param scancode The scancode to check
- * @return true if the key is pressed, false otherwise
- */
-bool is_key_pressed(uint32_t scancode) {
-  return (key_bitmap[scancode / 8] & (1 << (scancode % 8))) != 0;
-}
+static keyboard_t keyboard = {0};
 
-/**
- * @brief Set the key state in the bitmap
- *
- * This function updates the key bitmap to reflect the current state of the key.
- *
- * @param scancode The scancode of the key
- * @param pressed True if the key is pressed, false if released
- */
-void set_key_state(uint32_t scancode, bool pressed) {
-  if (scancode & 0x80) { // Key release
-    scancode &= 0x7F; // Clear the release bit
-    if (pressed) {
-      return; // Ignore setting a released key as pressed
-    }
-  } else { // Key press
-    if (!pressed) {
-      return; // Ignore setting a pressed key as released
-    }
-  }
-
-  // Update the bitmap
-  if (pressed) {
-    key_bitmap[scancode / 8] |= (1 << (scancode % 8));
-  } else {
-    key_bitmap[scancode / 8] &= ~(1 << (scancode % 8));
-  }
-}
-
-/**
- * @brief Convert a scancode to its ASCII representation
- *
- * This function takes a scancode as input and returns the corresponding ASCII character.
- *
- * It handles key presses, releases, and modifier keys like Shift and Caps Lock.
- *
- * @param scancode The scancode to convert
- * @return char The ASCII character corresponding to the scancode, or 0 if not applicable
- */
-char get_ascii_from_scancode(uint32_t scancode) {
-  static bool shift_pressed = false;
-  static bool caps_lock = false;
-
-  // Key release: bit 7 is set
+char sc_to_ascii(uint32_t scancode) {
   bool key_released = scancode & 0x80;
   uint8_t code = scancode & 0x7F;
 
-
-
-  // === Update Modifier States ===
+  // Update modifier key state
   switch (code) {
     case 0x2A: // Left Shift
     case 0x36: // Right Shift
-      shift_pressed = !key_released;
-      return 0;
-
-    case 0x3A: // Caps Lock (toggle only on press)
-      if (!key_released) {
-        caps_lock = !caps_lock;
-      }
-      return 0;
-
-    default:
+      keyboard.shift_pressed = !key_released;
       break;
+
+    case 0x1D: // Ctrl
+      keyboard.ctrl_pressed = !key_released;
+      break;
+
+    case 0x38: // Alt
+      keyboard.alt_pressed = !key_released;
+      break;
+
+    case 0x3A: // Caps Lock
+      if (!key_released) {
+        keyboard.capslock_enabled = !keyboard.capslock_enabled;
+      }
+      break;
+
+    // You could handle Num Lock / Scroll Lock here if needed
   }
 
-  // Ignore break codes (key releases)
+  // Update key state bitmap (0x00-0x7F)
+  uint8_t byte_index = code / 8;
+  uint8_t bit_mask = 1 << (code % 8);
   if (key_released) {
+    keyboard.key_state[byte_index] &= ~bit_mask;
     return 0;
+  } else {
+    keyboard.key_state[byte_index] |= bit_mask;
   }
 
-  // Lookup base characters
-  char ascii = shift_pressed ? scancode_to_ascii_shift[code]
+  // Ignore key release scancodes
+  if (key_released) return 0;
+
+  // Lookup base character
+  char ascii = keyboard.shift_pressed
+    ? scancode_to_ascii_shift[code]
     : scancode_to_ascii[code];
 
-  // If it's a letter, apply Caps Lock XOR Shift logic
+  // Handle Caps Lock + Shift logic for letters
   if (isalpha(ascii)) {
-    bool uppercase = shift_pressed ^ caps_lock;
-    if (uppercase) {
-      if (ascii >= 'a' && ascii <= 'z') {
-        ascii -= 32;
-      }
-    } else {
-      if (ascii >= 'A' && ascii <= 'Z') {
-        ascii += 32;
-      }
+    bool uppercase = keyboard.shift_pressed ^ keyboard.capslock_enabled;
+    if (uppercase && ascii >= 'a' && ascii <= 'z') {
+      ascii -= 32;
+    } else if (!uppercase && ascii >= 'A' && ascii <= 'Z') {
+      ascii += 32;
     }
   }
 
@@ -144,57 +100,46 @@ char get_ascii_from_scancode(uint32_t scancode) {
 }
 
 /**
- * @brief Convert an ASCII character to its scancode
- *
- * This function takes an ASCII character and returns the corresponding scancode.
- * It handles both uppercase and lowercase letters, as well as special characters.
- *
- * @param ascii The ASCII character to convert
- * @return uint32_t The corresponding scancode, or 0 if not found
+ * @brief Initialize the keyboard driver
  */
-uint32_t get_scancode_from_ascii(char ascii) {
-  // Handle uppercase letters
-  if (isupper(ascii)) {
-    ascii = tolower(ascii);
-    return scancode_to_ascii_shift[ascii];
-  }
+void keyboard_init(void) {
+  // TODO: do something with control bytes too
+  keyboard.initialized = true;
+}
 
-  // Handle lowercase letters
-  if (islower(ascii)) {
-    return scancode_to_ascii[ascii];
-  }
+/**
+ * @brief Get a character from the buffer
+ *
+ * This function retrieves a character from the keyboard buffer.
+ *
+ * @return The character read from the keyboard buffer, or 0 if not initialized or buffer is empty.
+ */
+char keyboard_getchar(void) {
+  if (!keyboard.initialized) return 0;
+  if (keyboard.buffer_length == 0) return 0;
 
-  // Handle special characters
-  switch (ascii) {
-    case '1': return scancode_to_ascii[0x02];
-    case '2': return scancode_to_ascii[0x03];
-    case '3': return scancode_to_ascii[0x04];
-    case '4': return scancode_to_ascii[0x05];
-    case '5': return scancode_to_ascii[0x06];
-    case '6': return scancode_to_ascii[0x07];
-    case '7': return scancode_to_ascii[0x08];
-    case '8': return scancode_to_ascii[0x09];
-    case '9': return scancode_to_ascii[0x0A];
-    case '0': return scancode_to_ascii[0x0B];
-    case '-': return scancode_to_ascii[0x0C];
-    case '=': return scancode_to_ascii[0x0D];
-    case '\b': return scancode_to_ascii[0x0E]; // Backspace
-    case '\t': return scancode_to_ascii[0x0F]; // Tab
-    case '[': return scancode_to_ascii[0x1A]; // Left bracket
-    case ']': return scancode_to_ascii[0x1B]; // Right bracket
-    case '\\': return scancode_to_ascii[0x2B]; // Backslash
-    case ';': return scancode_to_ascii[0x27]; // Semicolon
-    case '\'': return scancode_to_ascii[0x28]; // Apostrophe
-    case ',': return scancode_to_ascii[0x33]; // Comma
-    case '.': return scancode_to_ascii[0x34]; // Dot
-    case '/': return scancode_to_ascii[0x35]; // Slash
-    default: 
-      if (ascii == ' ') {
-        return scancode_to_ascii[0x39]; // Space
-      }
-      break;
-  }
+  char c = keyboard.buffer[keyboard.buffer_read_index];
+  keyboard.buffer_read_index++;
+  keyboard.buffer_length--;
 
-  // Not found, return 0
-  return 0;
+  if(keyboard.buffer_read_index >= 256) keyboard.buffer_read_index = 0;
+  return c;
+}
+
+/**
+ * @brief Add a character to the buffer
+ *
+ * This function adds a character to the keyboard buffer.
+ *
+ * @param c The character to add
+ */
+void keyboard_addchar(char c) {
+  if (!keyboard.initialized) return; // Not initialized
+  if (keyboard.buffer_length >= 256) return; // Buffer full
+
+  keyboard.buffer[keyboard.buffer_write_index] = c;
+  keyboard.buffer_write_index++;
+  keyboard.buffer_length++;
+
+  if (keyboard.buffer_write_index >= 256) keyboard.buffer_write_index = 0; // Wrap buffer index around
 }

@@ -3,8 +3,7 @@
  * Kernel panic functions
  */
 
-#include <kernel/vga.h>
-#include <kernel/driver/serial.h>
+#include <drivers/serial.h>
 
 #include <stdarg.h>
 #include <stddef.h>
@@ -14,28 +13,23 @@
 #include <string.h>
 
 void panicf(const char* fmt, ...) {
-/*
   va_list args;
   va_start(args, fmt);
 
   char buf[256];
-  vsprintf(buf, fmt, args);
+  vsnprintf(buf, 256, fmt, args);
 
   va_end(args);
 
-  init_fallback_vga();
-  fallback_vga_print(buf, strlen(buf));
+  serial_printf("Kernel panic: %s\n", buf);
 
   while (1) {
     asm volatile("hlt"); // Halt the system
   }
-*/
 }
 
 void panic(const char* msg) {
-  init_fallback_vga();
   serial_printf("Kernel panic: %s\n", msg);
-  vga_draws(msg, 0, 0, (uint32_t)vga_entry_color(VGA_COLOR_LIGHT_RED, VGA_COLOR_BLACK));
   
   // Halt the system
   while (1) {
