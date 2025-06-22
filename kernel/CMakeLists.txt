@@ -20,6 +20,13 @@ set(SURGEOS_KERNEL_SOURCES
   driver/serial.c
   driver/tty.c
 
+  surgeos/shell/shell.c
+  surgeos/shell/clear.c
+  surgeos/shell/echo.c
+  surgeos/shell/exit.c
+  surgeos/shell/help.c
+  surgeos/shell/reboot.c
+
   kernel.c
   kernel_init.c
 )

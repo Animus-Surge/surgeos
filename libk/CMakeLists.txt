@@ -26,7 +26,12 @@ set(SURGEOS_LIBK_SOURCES
   string/memcpy.c
   string/memmove.c
   string/memset.c
+  string/strcmp.c
+  string/strcpy.c
   string/strlen.c
+  string/strncat.c
+  string/strncpy.c
+  string/strtok.c
 
   # stdlib.h
   stdlib/abort.c

@@ -8,8 +8,11 @@
 #include <drivers/serial.h>
 #include <drivers/tty.h>
 
+#include <surgeos/shell.h>
+
 #include <stddef.h>
 #include <stdio.h>
+#include <string.h>
 
 #define TTY_COL_SIZE 8
 #define TTY_ROW_SIZE 8
@@ -53,14 +56,16 @@ void tty_loop() {
     if (tty.cmd_ready) {
       tty.cmd_ready = false;
  
-      printf("Command: ");
+      char cmd[512];
 
       // Process the command
       for (size_t i = 0; i < tty.buf_pos; i++) {
-        tty_writechar(tty.cmd_buffer[i]);
+        cmd[i] = tty.cmd_buffer[i];
       }
+      cmd[tty.buf_pos] = '\0';
+      serial_printf("TTY: Command: %s", cmd);
 
-      printf("\n");
+      surgeos_shell_command(cmd);
 
       // Post command
       tty.buf_pos = 0;
@@ -71,15 +76,22 @@ void tty_loop() {
     if (c && tty.input_ready) {
       // Check special characters
       if (c == '\n') {
+        if (tty.buf_pos == 0) {
+          // Just print a new command line
+          tty.new_line_ready = true;
+          tty.input_ready = false;
+          continue;
+        }
         tty.cmd_buffer[tty.buf_pos] = '\0';
         tty.input_ready = false;
         tty.cmd_ready = true;
       }
       else if (c == '\b') {
         if (tty.buf_pos > 0) {
-          tty.buf_pos--;
-          tty_writechar('\b'); // Write backspace character
+          tty.buf_pos -= 1;
+          printf("\b");
         }
+        continue;
       }
 
       printf("%c", c);
@@ -95,13 +107,6 @@ void tty_setchar(char c, size_t x, size_t y, uint32_t fg, uint32_t bg) {
   size_t fb_x = x * TTY_COL_SIZE;
   size_t fb_y = y * TTY_ROW_SIZE;
 
-  if (c == '\b') {
-    serial_printf("Backspace at (%u, %u)\n", x, y);
-
-    fb_x -= TTY_COL_SIZE;
-    c = ' ';
-  }
-
   framebuffer_drawc(c, fb_x, fb_y, fg, bg);
 }
 
@@ -112,7 +117,13 @@ void tty_writechar(char c) {
     if(++tty.cursor_y >= tty.height) {
       tty.cursor_y = 0;
     }
-  }
+  } else if (c == '\b') {
+    if (tty.cursor_x > 0) {
+      tty.cursor_x--;
+      tty_setchar(' ', tty.cursor_x, tty.cursor_y, tty.fg, tty.bg);
+    }
+    return; // Ignore backspace in this context
+  } 
 
   tty_setchar(c, tty.cursor_x, tty.cursor_y, tty.fg, tty.bg);
 
@@ -142,3 +153,4 @@ void tty_clear() {
 // Color functions
 
 // Cursor functions
+

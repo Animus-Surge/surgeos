@@ -9,7 +9,9 @@
 #include <stdarg.h>
 #include <stddef.h>
 
-#define NULL ((void*)0)
+#ifndef NULL
+# define NULL ((void*)0)
+#endif
 
 // Formatted I/O
 int printf(const char* __restrict format, ...);

@@ -54,5 +54,4 @@ uint32_t tty_get_fg_color(void);
 void tty_set_bg_color(uint32_t);
 uint32_t tty_get_bg_color(void);
 
-
 #endif // SURGEOS_DRIVER_TTY_H
